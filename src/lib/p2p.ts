@@ -65,9 +65,8 @@ class P2PHandler {
     onNewMessage: (message: string) => Promise<void>,
     onPeerConnected: (otherPeerAddress: string) => Promise<void>
   ) {
-    const subscriptionName = `peer_${peerId.toString()}_in_lobby`;
     const node = await createLibp2p({
-      peerId,
+      // peerId,
       start: false,
       addresses: {
         listen: [
@@ -76,11 +75,13 @@ class P2PHandler {
           "/webrtc",
         ],
       },
+      contentRouters:[],
       transports: [
+
         // the WebSocket transport lets us dial a local relay
         webSockets({
           // this allows non-secure WebSocket connections for purposes of the demo
-          filter: filters.all,
+          // filter: filters.all,
         }),
         // support dialing/listening on WebRTC addresses
         webRTC(),
@@ -94,20 +95,23 @@ class P2PHandler {
       // a connection encrypter is necessary to dial the relay
       connectionEncryption: [noise()],
       // a stream muxer is necessary to dial the relay
-      streamMuxers: [yamux(), mplex()],
-      connectionGater: {
-        denyDialMultiaddr: () => {
-          // by default we refuse to dial local addresses from browsers since they
-          // are usually sent by remote peers broadcasting undialable multiaddrs and
-          // cause errors to appear in the console but in this example we are
-          // explicitly connecting to a local node so allow all addresses
-          return false;
-        },
-      },
+      streamMuxers: [yamux(), mplex(),],
+      // connectionGater: {
+      //   // denyDialMultiaddr: () => {
+      //   // by default we refuse to dial local addresses from browsers since they
+      //   // are usually sent by remote peers broadcasting undialable multiaddrs and
+      //   // cause errors to appear in the console but in this example we are
+      //   // explicitly connecting to a local node so allow all addresses
+      //   // return false;
+      //   // },        
+      // },
       services: {
         identify: identify(),
         pubsub: gossipsub(),
-        dcutr: dcutr(),
+        dcutr: dcutr({
+          timeout: 1000,
+          retries: 100
+        }),
       },
       connectionManager: {
         minConnections: 0,
@@ -144,7 +148,7 @@ class P2PHandler {
 
     node.addEventListener("connection:close", (evt) => {
       logger.log(
-        "connection:close > node.getPeers():" + JSON.stringify(node.getPeers())
+        new Date().toUTCString() + " connection:close > node.getPeers():" + JSON.stringify(node.getPeers())
       );
       logger.log("connection:close > evt.detail:" + JSON.stringify(evt.detail));
     });
@@ -165,6 +169,7 @@ class P2PHandler {
       const peerAddress = JSON.parse(jsonMessage) as string[];
       let canConnect = false;
       for (const strAddr of peerAddress) {
+        if (!strAddr.includes("webrtc")) continue;
         const mAddress = multiaddr(strAddr);
 
         try {
@@ -179,7 +184,8 @@ class P2PHandler {
         throw new Error(`Cannot connect to peer addresses: ${peerAddress}`);
 
       onPeerConnected("");
-      node.services.pubsub.unsubscribe(subscriptionName);
+
+      node.services.pubsub.unsubscribe(`peer_${node.peerId.toString()}_in_lobby`);
 
       await logger.log(
         "connectToPeer -> node.getPeers():" + JSON.stringify(node.getPeers())
@@ -190,7 +196,8 @@ class P2PHandler {
 
     const addr = multiaddr(import.meta.env.PUBLIC_P2P_SERVER_ADDR);
     await node.dial(addr);
-    node.services.pubsub.subscribe(subscriptionName);
+
+    node.services.pubsub.subscribe(`peer_${node.peerId.toString()}_in_lobby`);
     this.isStarted = true;
     await logger.log(
       "connectToSignallingServer finished" + JSON.stringify(node.getPeers())

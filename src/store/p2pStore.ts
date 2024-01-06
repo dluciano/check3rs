@@ -101,12 +101,12 @@ export const createP2PStoreSlice: StateCreator<
     set({
       isLogOn: isLogOn,
     });
-    p2pHandler.updateLibP2PDebugging(state().logLevel, state().isLogOn);
+    p2pHandler.updateLibP2PDebugging(state().logLevel, !state().isLogOn);
   },
   setLogLevel: (logLevel: LibP2PLogLevel) => {
     set({
       logLevel,
     });
-    p2pHandler.updateLibP2PDebugging(state().logLevel, state().isLogOn);
+    p2pHandler.updateLibP2PDebugging(state().logLevel, !state().isLogOn);
   },
 });

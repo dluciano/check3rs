@@ -21,6 +21,7 @@
     "@libp2p/circuit-relay-v2": "^1.0.9",
     "@libp2p/dcutr": "^1.0.6",
     "@libp2p/identify": "^1.0.8",
+    "@libp2p/kad-dht": "^12.0.1",
     "@libp2p/mplex": "^10.0.9",
     "@libp2p/peer-id-factory": "^4.0.2",
     "@libp2p/webrtc": "^4.0.13",

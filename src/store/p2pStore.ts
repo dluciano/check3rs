@@ -46,7 +46,7 @@ export const createP2PStoreSlice: StateCreator<
   connect: async (onMessage, onPeerConnected) => {
     await withLog(async (logger) => {
       if (state().connectionStatus === "connected") {
-        logger.warning("Cannot connect when node is connected");
+        logger.warn("Cannot connect when node is connected");
         return;
       }
 
@@ -75,7 +75,7 @@ export const createP2PStoreSlice: StateCreator<
         type: message.type,
         value: message,
       };
-      await p2pHandler.sendMessage(JSON.stringify(json));
+      await p2pHandler.sendMessage(message);
       await logger.log(`Message sent: ${json}`);
     });
   },
@@ -85,7 +85,7 @@ export const createP2PStoreSlice: StateCreator<
         state().connectionStatus === "stopped" ||
         state().connectionStatus === "initial"
       ) {
-        await logger.warning(
+        await logger.warn(
           `Cannot stop connection when node state is: ${
             state().connectionStatus
           }`

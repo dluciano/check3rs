@@ -1,6 +1,6 @@
 type Logger = {
   log: (message: string) => Promise<void>;
-  warning: (message: string) => Promise<void>;
+  warn: (message: string) => Promise<void>;
   error: (error: Error | unknown) => Promise<void>;
 };
 
@@ -8,7 +8,7 @@ export const logger: Logger = {
   log: async (message) => {
     console.log(message);
   },
-  warning: async (message) => {
+  warn: async (message) => {
     console.warn(message);
   },
   error: async (error) => {

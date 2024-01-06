@@ -1,0 +1,9 @@
+.highlight{
+    stroke: rgb(121, 139, 236);
+    stroke-width: 2px;
+}
+
+.selected-piece{
+    stroke: rgba(151, 161, 222, 0.814);
+    stroke-width: 2px;
+}

@@ -38,7 +38,7 @@ class P2PHandler {
   private gameRoomTopic = "";
   private node?: Libp2p<{
     identify: Identify;
-    pubsub: PubSub<GossipsubEvents>;
+    pubsub: any;
     dcutr: unknown;
   }>;
   private readonly messagesReadStream: ReadableStream<string>;

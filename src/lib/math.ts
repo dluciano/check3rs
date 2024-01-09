@@ -1,11 +1,12 @@
-export const calculateCircleCenter = (
+export const getMiddlePoint = (
   row: number,
   col: number,
-  size: number,
-  r: number
-) => {
-  // Calculate the center of the rectangle
-  const cx = col * size + size / 2;
-  const cy = row * size + size / 2;
-  return { cx, cy };
+  size: number
+): {
+  readonly x: number;
+  readonly y: number;
+} => {
+  const x = col * size + size / 2;
+  const y = row * size + size / 2;
+  return { x, y };
 };

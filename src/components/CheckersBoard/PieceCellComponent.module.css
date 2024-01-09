@@ -1,0 +1,18 @@
+.highlight{
+    stroke: rgba(151, 161, 222, 0.814);
+    stroke-width: 2px;
+    
+}
+
+.selected-piece{
+    stroke: rgb(121, 139, 236);
+    stroke-width: 2px;
+}
+
+.black-piece{
+    fill: url(#black-men-linear-gradient)
+}
+
+.red-piece{
+    fill: url(#red-men-linear-gradient)
+}

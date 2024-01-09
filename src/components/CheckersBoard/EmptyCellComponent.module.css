@@ -1,0 +1,9 @@
+.can-move-to{
+    stroke: rgba(151, 161, 222, 0.814) !important;
+}
+
+.empty-cell {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 4px;
+}

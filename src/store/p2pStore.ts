@@ -3,7 +3,7 @@ import { withLog } from "../lib/logger";
 import p2pHandler, { type LibP2PLogLevel } from "../lib/p2p";
 import {
   NewGameP2PMessage,
-  type GameState,
+  type GameStoreState,
   type P2PConnectionState,
   type P2PMessage,
   MoveToP2PMessage,
@@ -34,7 +34,7 @@ const onMessageParse: (jsonMessage: string) => Promise<P2PMessage> = async (
 };
 
 export const createP2PStoreSlice: StateCreator<
-  P2PConnectionState & GameState,
+  P2PConnectionState & GameStoreState,
   [],
   [],
   P2PConnectionState

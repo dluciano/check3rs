@@ -1,3 +1,10 @@
+import type {
+  AiAlgorithm,
+  BoardCell,
+  Cell,
+  GameState,
+  PlayerPieceColour,
+} from "@lib";
 import type { LibP2PLogLevel } from "../lib/p2p";
 import { boolean, number, z } from "zod";
 
@@ -23,33 +30,12 @@ export type MoveToP2PMessageType = z.infer<typeof MoveToP2PMessage> & {
 
 export type P2PMessage = NewGameP2PMessageType | MoveToP2PMessageType;
 
-export type Cell = { row: number; col: number };
-export type FromCellToCell = {
-  fromRow: number;
-  fromCol: number;
-  toRow: number;
-  toCol: number;
-};
-export const WhiteSpaceCell = "x";
-export const BlackMen = "b";
-export const BlackKing = "B";
-export const RedMen = "r";
-export const RedKing = "R";
-export const EmptyCell = ".";
-export type PlayerPieceColour = typeof RedMen | typeof BlackMen;
-export type MenPiece = typeof BlackMen | typeof RedMen;
-export type PieceType =
-  | typeof BlackMen
-  | typeof BlackKing
-  | typeof RedMen
-  | typeof RedKing;
-export type BoardCell = PieceType | typeof WhiteSpaceCell | typeof EmptyCell;
-
-export type UpdateableCell = (
-  row: number,
-  col: number,
-  cell: BoardCell,
-  isSelected?: boolean
+export type OnUpdateCell = (
+  cell: Cell,
+  boardCell: BoardCell,
+  isSelected?: boolean,
+  canMoveFrom?: boolean,
+  canMoveTo?: boolean
 ) => void;
 
 export interface P2PConnectionState {
@@ -67,140 +53,27 @@ export interface P2PConnectionState {
   setLogLevel: (logLevel: LibP2PLogLevel) => void;
 }
 
-export interface GameState {
-  board: BoardCell[][];
-  playerPieceColour: PlayerPieceColour;
-  capturedPieces: Record<MenPiece, number>;
-  currentPlayer: PlayerPieceColour;
-  updates: UpdateableCell[][];
-  canCaptureBackwards: boolean;
-  flyingKing: boolean;
-  selectedPiece?: Cell;
-  winner: PlayerPieceColour | undefined;
-  gameState: "idle" | "playing" | "finish";
+export interface GameStoreState {
   boardSize: number;
-  continuesCapture?: Cell;
-  isP2PGame: boolean;
-  newGame: (
-    initialBoard: BoardCell[][],
-    playerPieceColour: PlayerPieceColour,
-    currentPlayer: PlayerPieceColour,
-    canCaptureBackwards: boolean,
-    flyingKing: boolean,
-    isP2PGame: boolean
-  ) => void;
-  move: (
-    fromRow: number,
-    fromCol: number,
-    toRow: number,
-    toCol: number,
-    isRemoteGameState: boolean
-  ) => boolean;
-  setSelectedPiece: (row: number, col: number) => void;
-  setUpdatableCell: (row: number, col: number, update: UpdateableCell) => void;
+  playerPieceColour: PlayerPieceColour;
+  updates: OnUpdateCell[][];
+  gameState: GameState;
+  aiAlgorithm: AiAlgorithm;
+  selectedCell?: Cell;
+  gameStatus: "idle" | "playing" | "finish";
+  aiPlayerPieceColour?: PlayerPieceColour;
+  newGame: () => void;
+  moveTo: (to: Cell) => GameState;
+  setSelectedCell: (cell: Cell) => void;
+  setSelectedCellForPlayer: (cell: Cell) => void;
+  setUpdatableCell: (cell: Cell, update: OnUpdateCell) => void;
   initUpdatables: () => void;
   updateAll: () => void;
 }
 
 export interface P2PGameState {
-  newGameP2PGame: (
-    canCaptureBackwards: boolean,
-    flyingKing: boolean
-  ) => Promise<void>;
-  moveAndSend: (
-    fromRow: number,
-    fromCol: number,
-    toRow: number,
-    toCol: number
-  ) => Promise<boolean>;
+  newGameP2PGame: () => Promise<void>;
+  moveAndSend: (to: Cell) => Promise<boolean>;
+  playFirstMoveIfAiIsFirstPlayer: () => void;
+  newGameAgainstAi: () => void;
 }
-
-export interface UserSession {
-  userId: string;
-  userName: string;
-  isSessionLoaded: boolean;
-  configureSession: () => Promise<void>;
-}
-
-export const emptyBoard: BoardCell[][] = [
-  [
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-  ],
-  [
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-  ],
-  [
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-    BlackMen,
-    WhiteSpaceCell,
-  ],
-  [
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-  ],
-  [
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-    EmptyCell,
-    WhiteSpaceCell,
-  ],
-  [
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-  ],
-  [
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-  ],
-  [
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-    WhiteSpaceCell,
-    RedMen,
-  ],
-];

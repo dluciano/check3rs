@@ -1,22 +1,26 @@
-import { calculateCircleCenter } from "../lib/math";
-import { isBlackPiece, isRedPiece, isKing } from "../store/gameStore";
-import { useP2PAndGameStore } from "../store/store";
 import {
-  type BoardCell,
   WhiteSpaceCell,
+  type BoardCell,
   EmptyCell,
-  BlackMen,
-  RedMen,
-  RedKing,
-  BlackKing,
-} from "../store/types";
+  isPiece,
+  isBlackPiece,
+  isRedPiece,
+  isKing,
+} from "@lib";
+import { calculateCircleCenter } from "../lib/math";
+import { useP2PAndGameStore } from "../store/store";
 import styles from "./BoardSvg.module.css";
 import { useEffect, useState } from "react";
+import type { OnUpdateCell } from "store/types";
 type CellProps = { row: number; col: number; cellSize: number };
 
 const BoardCellComponent = ({ row, col, cellSize }: CellProps) => {
-  const { setSelectedPiece, moveAndSend, setUpdatableCell, initUpdatables } =
-    useP2PAndGameStore();
+  const {
+    setSelectedCellForPlayer,
+    moveAndSend,
+    setUpdatableCell,
+    initUpdatables,
+  } = useP2PAndGameStore();
 
   const [cell, setCell] = useState<{
     row: number;
@@ -24,60 +28,66 @@ const BoardCellComponent = ({ row, col, cellSize }: CellProps) => {
     boardCellType: BoardCell | undefined;
     isSelected: boolean;
     isHighlighted: boolean;
+    canMoveFrom: boolean | undefined;
+    canMoveTo: boolean | undefined;
   }>({
     row,
     col,
+    //TODO: find a way to initialize this using the initial board
     boardCellType: undefined,
     isSelected: false,
     isHighlighted: false,
+    canMoveFrom: false,
+    canMoveTo: false,
   });
 
   useEffect(() => {
     if (cell.boardCellType === WhiteSpaceCell) return;
     initUpdatables();
-    setUpdatableCell(
-      row,
-      col,
-      (newRow, newCol, newBoardCellType, isSelected) => {
-        setCell((state) => ({
-          ...state,
-          row: newRow,
-          col: newCol,
-          boardCellType: newBoardCellType,
-          isSelected: isSelected === true || false,
-        }));
-      }
-    );
+    const onUpdateCell: OnUpdateCell = (
+      { row: newRow, col: newCol },
+      newBoardCellType,
+      isSelected,
+      canMoveFrom,
+      canMoveTo
+    ) => {
+      setCell((state) => ({
+        ...state,
+        row: newRow,
+        col: newCol,
+        boardCellType: newBoardCellType,
+        isSelected: isSelected === true || false,
+        canMoveFrom,
+        canMoveTo,
+      }));
+    };
+    setUpdatableCell({ row, col }, onUpdateCell);
   }, [setUpdatableCell, initUpdatables, setCell, row, col]);
 
   if (cell.boardCellType === undefined) return <></>;
   if (cell.boardCellType === WhiteSpaceCell) return <></>;
 
-  const setHighlight = (isOn: boolean) => {
-    setCell((state) => ({ ...state, isHighlighted: isOn }));
+  const setHighlight = (isHighlighted: boolean) => {
+    setCell((state) => ({ ...state, isHighlighted: isHighlighted }));
   };
 
   if (cell.boardCellType === EmptyCell) {
     return (
       <rect
-        style={{ fill: "transparent", stroke: "none" }}
+        // style={{ fill: "transparent", stroke: "none" }} // TODO: more
+        style={{ fill: "transparent" }}
         width={cellSize}
         height={cellSize}
-        className="black-cell"
+        className={`${cell.canMoveTo ? styles["can-move-to"] : ""}`}
         x={cell.col * cellSize}
         y={cell.row * cellSize}
         onClick={() => {
-          moveAndSend(-Infinity, -Infinity, cell.row, cell.col);
+          moveAndSend(cell);
         }}
       />
     );
   }
-  if (
-    cell.boardCellType === BlackMen ||
-    cell.boardCellType === RedMen ||
-    cell.boardCellType === RedKing ||
-    cell.boardCellType === BlackKing
-  ) {
+  if (isPiece(cell.boardCellType)) {
     let fill = "";
     if (isBlackPiece(cell.boardCellType))
       fill = "url(#black-men-linear-gradient)";
@@ -99,9 +109,11 @@ const BoardCellComponent = ({ row, col, cellSize }: CellProps) => {
         onMouseOver={(e) => setHighlight(true)}
         onMouseLeave={(e) => setHighlight(false)}
         onClick={() => {
-          setSelectedPiece(cell.row, cell.col);
+          setSelectedCellForPlayer({ row: cell.row, col: cell.col });
         }}
-        className={`${cell.isSelected ? styles["selected-piece"] : ""}`}
+        className={`${cell.isSelected ? styles["selected-piece"] : ""} ${
+          cell.canMoveFrom ? styles["can-move-from"] : ""
+        }`}
       >
         <circle
           cx={cx}
@@ -138,6 +150,10 @@ const BoardCellComponent = ({ row, col, cellSize }: CellProps) => {
 
 const CheckersBoard = () => {
   const boardSize = useP2PAndGameStore((state) => state.boardSize);
+  const { playFirstMoveIfAiIsFirstPlayer } = useP2PAndGameStore();
+  useEffect(() => {
+    playFirstMoveIfAiIsFirstPlayer();
+  }, [playFirstMoveIfAiIsFirstPlayer]);
   return (
     <svg
       version="1.1"

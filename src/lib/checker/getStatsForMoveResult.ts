@@ -12,9 +12,9 @@ export const getStatsForMoveResult = (
   } = moveResult;
   return (
     (isMenForwardStep ? 2 : 1) +
-    numberOfCapturedMen * 0.1 +
-    numberOfCapturedKings * 2.5 +
-    (promotedToKing ? 5 : 0) +
-    (keepCapturing ? 100 : 0)
+    numberOfCapturedMen * 2.3 +
+    numberOfCapturedKings * 5.5 +
+    (promotedToKing ? 20 : 0) +
+    (keepCapturing ? 13 : 0)
   );
 };

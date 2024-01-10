@@ -10,6 +10,7 @@ import {
   isKing,
   isBackwardMove,
   isEmptyCell,
+  type ValidMovePiece,
 } from ".";
 
 export const getKMoves = (
@@ -18,14 +19,17 @@ export const getKMoves = (
   flyingKing: boolean,
   canCaptureBackward: boolean,
   fromCell: Cell,
-  mustCapture: boolean = false,
+  fromCellMustCapture: boolean = false,
   k: number = Infinity,
   onlyCaptures: boolean = false
-): MovePiece[] => {
+): {
+  moves: ValidMovePiece[];
+  hasAtLeastOneCapture: boolean;
+} => {
   const fromCellContent = board[fromCell.row][fromCell.col];
   const ROWS = board.length;
   const COLS = board[0].length;
-  const moves: MovePiece[] = [];
+  const moves: ValidMovePiece[] = [];
 
   if (!isPiece(fromCellContent))
     throw new Error(
@@ -35,11 +39,14 @@ export const getKMoves = (
     throw new Error(
       `cannot find moves for the piece '${fromCellContent}' located at (${fromCell.row},${fromCell.col}) because k: '${k}' moves where requested. K must be a value between 1 and Infinity`
     );
+  let hasAtLeastOneCapture = false;
   for (const direction of diagonalDirections) {
+    let hasCapture = false;
     let r = fromCell.row + direction[0];
     let c = fromCell.col + direction[1];
-    const movesTmp: MovePiece[] = [];
+    const movesTmp: ValidMovePiece[] = [];
     let captureCount = 0;
+
     while (
       r >= 0 &&
       r < ROWS &&
@@ -51,7 +58,11 @@ export const getKMoves = (
       const nextCellContent = board[nextCell.row][nextCell.col];
       if (isMenPiece(fromCellContent) || !flyingKing) {
         if (isEmptyCell(nextCellContent) && !onlyCaptures) {
-          const move: MovePiece = { from: fromCell, to: nextCell };
+          const move: ValidMovePiece = {
+            from: fromCell,
+            to: nextCell,
+            belongsToDiagonalCapturePath: false,
+          };
           if (isKing(fromCellContent) || !isBackwardMove(board, move))
             movesTmp.push(move);
         } else if (isEnemyPiece(nextCellContent, player)) {
@@ -77,7 +88,9 @@ export const getKMoves = (
                 !isBackwardMove(board, move) ||
                 canCaptureBackward
               ) {
-                movesTmp.push(move);
+                hasCapture = true;
+                hasAtLeastOneCapture = true;
+                movesTmp.push({ ...move, belongsToDiagonalCapturePath: true });
                 captureCount++;
               }
             }
@@ -92,7 +105,7 @@ export const getKMoves = (
           break;
         if (isEmptyCell(nextCellContent) && !onlyCaptures) {
           const move: MovePiece = { from: fromCell, to: nextCell };
-          movesTmp.push(move);
+          movesTmp.push({ ...move, belongsToDiagonalCapturePath: hasCapture });
         } else if (isEnemyPiece(nextCellContent, player)) {
           const nextNextCell: Cell = {
             row: nextCell.row + direction[0],
@@ -112,7 +125,9 @@ export const getKMoves = (
                 to: nextNextCell,
               };
               captureCount++;
-              movesTmp.push(move);
+              hasCapture = true;
+              hasAtLeastOneCapture = true;
+              movesTmp.push({ ...move, belongsToDiagonalCapturePath: true });
               r = nextNextCell.row + direction[0];
               c = nextNextCell.col + direction[1];
               continue;
@@ -123,8 +138,9 @@ export const getKMoves = (
       r += direction[0];
       c += direction[1];
     }
-    if (mustCapture && captureCount === 0) continue;
+    if (fromCellMustCapture && captureCount === 0) continue;
     moves.push(...movesTmp);
   }
-  return moves;
+
+  return { moves, hasAtLeastOneCapture };
 };

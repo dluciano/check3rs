@@ -14,6 +14,7 @@ export const getWinner = (
   board: CheckersBoard,
   flyingKing: boolean,
   canCaptureBackward: boolean,
+  mustCapture: boolean,
   currentPlayer: PlayerPieceColour
 ): PlayerPieceColour | undefined => {
   const ROWS = board.length;
@@ -43,7 +44,7 @@ export const getWinner = (
           fromCell,
           false,
           1
-        ).length >= 1;
+        ).moves.length >= 1;
       if (canMove && isBlackPiece(fromCellContent)) canBlackMove = true;
       else if (canMove && isRedPiece(fromCellContent)) canRedMove = true;
     }

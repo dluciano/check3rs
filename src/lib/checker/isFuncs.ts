@@ -4,6 +4,7 @@ import {
   type PlayerPieceColour,
   type MovePiece,
   type CheckersBoard,
+  type Piece,
 } from "./types";
 
 export const isRedMen = (cell: CellContent) => cell === RedMen;
@@ -54,9 +55,9 @@ export const isPlayerPiece = (
 export const isMenPromotionCell = (
   boardLength: number,
   move: MovePiece,
-  fromPiece: Piece
+  from: CellContent
 ): boolean => {
-  if (isBlackMen(fromPiece) && move.to.row === boardLength - 1) return true;
-  if (isRedMen(fromPiece) && move.to.row === 0) return true;
+  if (isBlackMen(from) && move.to.row === boardLength - 1) return true;
+  if (isRedMen(from) && move.to.row === 0) return true;
   return false;
 };

@@ -31,10 +31,11 @@ export const createGameStoreSlice: StateCreator<
   gameState: {
     currentPlayer: BlackMen,
     board: [],
+    winner: undefined,
+    keepCapturingPiece: undefined,
     canCaptureBackward: true,
     flyingKing: true,
-    keepCapturingPiece: undefined,
-    winner: undefined,
+    mustCapture: true,
     gameStats: {
       blackRewards: 0,
       redRewards: 0,
@@ -57,7 +58,8 @@ export const createGameStoreSlice: StateCreator<
       initialGameState.board,
       initialGameState.currentPlayer,
       initialGameState.flyingKing,
-      initialGameState.canCaptureBackward
+      initialGameState.canCaptureBackward,
+      initialGameState.mustCapture
     );
     set(() => ({
       validMoves: validMoves,
@@ -86,13 +88,6 @@ export const createGameStoreSlice: StateCreator<
 
     const moveResult = moveToCell(gameState.board, move, false);
 
-    const winner = getWinner(
-      moveResult.board,
-      gameState.flyingKing,
-      gameState.canCaptureBackward,
-      gameState.currentPlayer
-    );
-
     const { nextPlayer, pieceThatMustKeepCapturing } =
       getNextPlayerAndKeepCapturePiece(
         moveResult,
@@ -100,8 +95,17 @@ export const createGameStoreSlice: StateCreator<
         moveResult.board,
         gameState.currentPlayer,
         gameState.flyingKing,
-        gameState.canCaptureBackward
+        gameState.canCaptureBackward,
+        gameState.mustCapture
       );
+
+    const winner = getWinner(
+      moveResult.board,
+      gameState.flyingKing,
+      gameState.canCaptureBackward,
+      gameState.mustCapture,
+      nextPlayer
+    );
 
     const rewards = getStatsForMoveResult(
       moveResult,
@@ -123,12 +127,13 @@ export const createGameStoreSlice: StateCreator<
           gameState.canCaptureBackward,
           pieceThatMustKeepCapturing,
           true
-        )
+        ).moves
       : getAllValidMovesForPlayer(
           moveResult.board,
           nextPlayer,
           gameState.flyingKing,
-          gameState.canCaptureBackward
+          gameState.canCaptureBackward,
+          gameState.mustCapture
         );
 
     const nextGameState: GameState = {
@@ -142,7 +147,7 @@ export const createGameStoreSlice: StateCreator<
         redRewards,
       },
     };
-    set((state) => ({
+    set(() => ({
       validMoves: validMoves,
       selectedCell: winner ? undefined : pieceThatMustKeepCapturing,
       gameState: nextGameState,

@@ -22,8 +22,9 @@ export const ai = {
         aiPlayerPieceColour,
         gameState.flyingKing,
         gameState.canCaptureBackward,
+        gameState.mustCapture,
         gameState.gameStats,
-        6
+        8
       );
 
     throw new Error(`AI ${aiAlgorithm} algorithm not implemented yet`);

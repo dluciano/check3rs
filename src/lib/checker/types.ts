@@ -41,6 +41,7 @@ export type GameState = {
   readonly currentPlayer: PlayerPieceColour;
   readonly winner?: PlayerPieceColour;
   readonly keepCapturingPiece?: Cell;
+  readonly mustCapture: boolean;
 };
 
 export type TopRightDiagonal = typeof topRightDiagonal;
@@ -69,4 +70,10 @@ export type MovePieceResult = {
   numberOfCapturedMen: number;
   promotedToKing: boolean;
   isMenForwardStep: boolean;
+};
+
+export type ValidMovePiece = {
+  readonly from: Cell;
+  readonly to: Cell;
+  readonly belongsToDiagonalCapturePath: boolean;
 };

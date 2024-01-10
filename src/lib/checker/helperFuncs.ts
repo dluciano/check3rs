@@ -28,7 +28,8 @@ export const getNextPlayerAndKeepCapturePiece = (
   board: CheckersBoard,
   currentPlayer: PlayerPieceColour,
   flyingKing: boolean,
-  canCaptureBackward: boolean
+  canCaptureBackward: boolean,
+  mustCapture: boolean
 ): {
   pieceThatMustKeepCapturing: Cell | undefined;
   nextPlayer: PlayerPieceColour;
@@ -49,7 +50,7 @@ export const getNextPlayerAndKeepCapturePiece = (
       true,
       1,
       true
-    ).length > 0;
+    ).moves.length > 0;
   const nextPlayer = canKeepCapturing
     ? currentPlayer
     : getOpponentPlayerPieceColour(currentPlayer);

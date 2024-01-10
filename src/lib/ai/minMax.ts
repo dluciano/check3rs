@@ -22,6 +22,7 @@ const minMax = (
   currentPlayer: PlayerPieceColour,
   flyingKing: boolean,
   canCaptureBackward: boolean,
+  mustCapture: boolean,
   depth: number,
   alpha: number,
   beta: number,
@@ -29,7 +30,13 @@ const minMax = (
   aiRewards: number,
   opponentRewards: number
 ): number => {
-  const winner = getWinner(initialBoard, flyingKing, canCaptureBackward, currentPlayer);
+  const winner = getWinner(
+    initialBoard,
+    flyingKing,
+    canCaptureBackward,
+    mustCapture,
+    currentPlayer
+  );
   if (depth === 0 || winner) {
     let winReward = 0;
     if (winner && winner === aiPlayerPieceColour) winReward = 100_000;
@@ -47,12 +54,13 @@ const minMax = (
         canCaptureBackward,
         initialFrom,
         true
-      )
+      ).moves
     : getAllValidMovesForPlayer(
         initialBoard,
         currentPlayer,
         flyingKing,
-        canCaptureBackward
+        canCaptureBackward,
+        mustCapture
       );
 
   for (const move of validMoves) {
@@ -65,7 +73,8 @@ const minMax = (
         nextBoard,
         currentPlayer,
         flyingKing,
-        canCaptureBackward
+        canCaptureBackward,
+        mustCapture
       );
 
     const rewards = getStatsForMoveResult(
@@ -85,6 +94,7 @@ const minMax = (
       nextPlayer,
       flyingKing,
       canCaptureBackward,
+      mustCapture,
       depth - 1,
       alpha,
       beta,
@@ -119,6 +129,7 @@ export const minMaxAi = (
   aiPlayerColour: PlayerPieceColour,
   flyingKing: boolean,
   canCaptureBackward: boolean,
+  mustCapture: boolean,
   currentGameStats: GameStats,
   maxDepth: number
 ) => {
@@ -130,12 +141,13 @@ export const minMaxAi = (
         canCaptureBackward,
         initialFrom,
         true
-      )
+      ).moves
     : getAllValidMovesForPlayer(
         initialBoard,
         aiPlayerColour,
         flyingKing,
-        canCaptureBackward
+        canCaptureBackward,
+        mustCapture
       );
   let currentBestReward = -Infinity;
   let bestMove: MovePiece | undefined = undefined;
@@ -155,7 +167,8 @@ export const minMaxAi = (
         nextBoard,
         aiPlayerColour,
         flyingKing,
-        canCaptureBackward
+        canCaptureBackward,
+        mustCapture
       );
     const rewards = getStatsForMoveResult(
       moveResult,
@@ -169,6 +182,7 @@ export const minMaxAi = (
       nextPlayer,
       flyingKing,
       canCaptureBackward,
+      mustCapture,
       maxDepth,
       -Infinity,
       Infinity,

@@ -1,14 +1,17 @@
 .highlight{
-    stroke: rgba(151, 161, 222, 0.814);
-    stroke-width: 2px;
-    
+    stroke: rgba(151, 161, 222, 0.814) !important;
+    stroke-width: 2px !important;   
 }
 
 .selected-piece{
-    stroke: rgb(121, 139, 236);
-    stroke-width: 2px;
+    stroke:  rgb(237, 97, 226) !important;
+    stroke-width: 2px !important;
 }
 
+.can-move-from {
+    stroke: rgba(249, 185, 214, 0.755);
+    stroke-width: 1px;
+}
 .black-piece{
     fill: url(#black-men-linear-gradient)
 }

@@ -1,19 +1,6 @@
 import type { StateCreator } from "zustand";
 import { type GameStoreState, type MultiplayerStoreState } from "./types";
-import {
-  moveToCell,
-  type GameState,
-  type MovePiece,
-  getWinner,
-  getNextPlayerAndKeepCapturePiece,
-  getStatsForMoveResult,
-  isBlackPiece,
-  isRedPiece,
-  getKMoves,
-  ai,
-  getOpponentPlayerPieceColour,
-  wait,
-} from "@lib";
+import { ai, getOpponentPlayerPieceColour, wait } from "@lib";
 
 export const createMultiplayerStoreSlice: StateCreator<
   GameStoreState & MultiplayerStoreState,
@@ -21,7 +8,7 @@ export const createMultiplayerStoreSlice: StateCreator<
   [],
   MultiplayerStoreState
 > = (set, get) => ({
-  onMove: () => {},
+  onMove: async () => {},
   setOnMove: (onMove) => {
     set((state) => ({ onMove }));
   },

@@ -23,6 +23,7 @@ export const PieceCellComponent = ({
   const myPlayerPieceColour = useCheckersGameStore(
     (state) => state.myPlayerPieceColour
   );
+  const validMoves = useCheckersGameStore((state) => state.validMoves);
   const selectedCell = useCheckersGameStore((state) => state.selectedCell);
   const [isHighlighted, setIsHighlighted] = useState(false);
 
@@ -34,7 +35,9 @@ export const PieceCellComponent = ({
   const className = isBlackPiece(piece)
     ? styles["black-piece"]
     : styles["red-piece"];
-
+  const canMoveFrom =
+    validMoves.findIndex((m) => m.from.row === row && m.from.col === col) !==
+    -1;
   const { x, y } = getMiddlePoint(row, col, cellSize);
   return (
     <g
@@ -51,15 +54,13 @@ export const PieceCellComponent = ({
           return;
         setSelectedCell(cell);
       }}
-      className={`${className} ${isSelected ? styles["selected-piece"] : ""} 
+      className={`
+      ${canMoveFrom ? styles["can-move-from"] : ""}
+      ${className} ${isSelected ? styles["selected-piece"] : ""} 
+      ${isHighlighted ? styles["highlight"] : ""}
       `}
     >
-      <circle
-        cx={x}
-        cy={y}
-        r={radius}
-        className={`${isHighlighted ? styles["highlight"] : ""}`}
-      />
+      <circle cx={x} cy={y} r={radius} />
       {isKing(piece) && (
         <path
           transform={`translate(${x}, ${y})`}

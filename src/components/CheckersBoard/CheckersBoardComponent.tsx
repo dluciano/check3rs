@@ -2,8 +2,13 @@ import { useCheckersGameStore } from "store/store";
 import { isEmptyCell, isPiece, type Cell, type Piece } from "@lib";
 import { PieceCellComponent } from "./PieceCellComponent";
 import { EmptyCellComponent } from "./EmptyCellComponent";
+import { twMerge } from "tailwind-merge";
 
-export const CheckersBoardComponent = () => {
+export const CheckersBoardComponent = ({
+  className,
+}: {
+  className?: string;
+}) => {
   const board = useCheckersGameStore((state) => state.gameState.board);
   const cellSize = 100;
   return (
@@ -12,8 +17,7 @@ export const CheckersBoardComponent = () => {
       id="checkersboard"
       viewBox="0 0 800 1020"
       xmlSpace="preserve"
-      width="800"
-      height="1020"
+      className={className}
       fill="#000000"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlns="http://www.w3.org/2000/svg"

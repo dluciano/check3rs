@@ -14,6 +14,18 @@ export const emptyBoard: CheckersBoard = [
   ["x", "r", "x", "r", "x", "r", "x", "r"],
 ];
 
+// Given the following checkers board:
+//   A B C D E F G H
+// 0 b x b x b x b x
+// 1 x b x b x b x b
+// 2 b x b x b x b x
+// 3 x . x . x . x .
+// 4 . x . x . x . x
+// 5 x r x r x r x r
+// 6 r x r x r x r x
+// 7 x r x r x r x r
+// You are the red player, and it's your turn. Provide the next (from, to) move to ensure your red piece wins. Use the format ROW[0-7], Column[A-H]. For example, 'B5 C4' represents moving a piece from B5 to C4. Please respond with the move only. Next move:
+
 // [
 //   [".", "x", "B", "x", ".", "x", ".", "x"],
 //   ["x", ".", "x", ".", "x", ".", "x", "."],

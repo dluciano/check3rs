@@ -8,6 +8,7 @@ import {
   BlackMen,
   RedMen,
   isRedPiece,
+  getPlayerPieceColourForCell,
 } from ".";
 
 export const getWinner = (
@@ -35,16 +36,16 @@ export const getWinner = (
 
       if (isBlackPiecePlayer) hasBlack = true;
       else hasRed = true;
-      const canMove =
-        getKMoves(
-          board,
-          currentPlayer,
-          flyingKing,
-          canCaptureBackward,
-          fromCell,
-          false,
-          1
-        ).moves.length >= 1;
+      const { moves, hasAtLeastOneCapture } = getKMoves(
+        board,
+        getPlayerPieceColourForCell(fromCellContent),
+        flyingKing,
+        canCaptureBackward,
+        fromCell,
+        false,
+        1
+      );
+      const canMove = mustCapture ? hasAtLeastOneCapture : moves.length >= 1;
       if (canMove && isBlackPiece(fromCellContent)) canBlackMove = true;
       else if (canMove && isRedPiece(fromCellContent)) canRedMove = true;
     }
